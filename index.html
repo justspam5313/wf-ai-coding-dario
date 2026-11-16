@@ -3,18 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mein Projekt</title>
+  <title>Der unklickbare Knopf</title>
   <link rel="stylesheet"
         href="style.css">
 </head>
 <body>
-  <main>
-    <h1>Hallo!</h1>
-    <p>Das ist der Startpunkt für mein Projekt im Wahlfach «Programmieren lernen mit KI».</p>
+  <!-- Statuszeile oben -->
+  <p id="statuszeile">Stufe 1 · Versuche 0 · Esc = beenden</p>
 
+  <!-- Spielfläche: füllt das ganze Browserfenster -->
+  <main id="spielflaeche">
     <button id="knopf">Klick mich</button>
-    <p id="ausgabe">Noch nicht geklickt.</p>
+    <p id="erwischt" hidden>Erwischt!</p>
   </main>
+
+  <!-- Endmeldung: erst sichtbar, wenn Esc gedrückt wurde -->
+  <div id="endmeldung" hidden>
+    <p id="endtext">Spiel beendet</p>
+    <button id="nochmals">Nochmals spielen</button>
+  </div>
 
   <script src="script.js"></script>
 </body>
