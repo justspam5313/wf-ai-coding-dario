@@ -8,7 +8,8 @@
 // groesse:       1 = normale Grösse, 0.6 = 60 %
 // text:          Knopftext in dieser Stufe
 const stufen = [
-  { nummer: 1, abVersuchen: 0, tempo: 0, fluchtTempo: 2, fluchtAbstand: 120, groesse: 1, text: "Klick mich" }
+  { nummer: 1, abVersuchen: 0, tempo: 0, fluchtTempo: 2, fluchtAbstand: 120, groesse: 1, text: "Klick mich" },
+  { nummer: 2, abVersuchen: 3, tempo: 3, fluchtTempo: 9, fluchtAbstand: 150, groesse: 1, text: "Zu langsam!" }
 ];
 
 // ===== Zustand: alles, was sich während des Spiels ändert =====
@@ -77,10 +78,11 @@ function zeigeErwischt() {
   }, 1000);
 }
 
-// Text (und später Grösse) der aktuellen Stufe auf den Knopf übertragen
+// Einstellungen der aktuellen Stufe auf den Knopf übertragen
 function wendeStufeAn() {
   const stufe = aktuelleStufe();
   knopf.textContent = stufe.text;
+  starteFlug(stufe.tempo);
 }
 
 // ===== Bewegung =====
@@ -90,7 +92,15 @@ function setzeKnopfInDieMitte() {
   zustand.y = (window.innerHeight - knopf.offsetHeight) / 2;
 }
 
-// Knopf bleibt vollständig im Browserfenster (unterhalb der Statuszeile)
+// Knopf fliegt in eine zufällige Richtung los (tempo 0 = steht still)
+function starteFlug(tempo) {
+  const winkel = Math.random() * 2 * Math.PI; // zufälliger Winkel im Kreis
+  zustand.tempoX = Math.cos(winkel) * tempo;
+  zustand.tempoY = Math.sin(winkel) * tempo;
+}
+
+// Knopf bleibt vollständig im Browserfenster (unterhalb der Statuszeile).
+// Stösst er an einen Rand, prallt er ab: die Richtung dreht um.
 function halteImBild() {
   const oben = statuszeile.offsetHeight;
   const rechts = window.innerWidth - knopf.offsetWidth;
@@ -98,15 +108,19 @@ function halteImBild() {
 
   if (zustand.x < 0) {
     zustand.x = 0;
+    zustand.tempoX = Math.abs(zustand.tempoX);  // jetzt nach rechts
   }
   if (zustand.x > rechts) {
     zustand.x = rechts;
+    zustand.tempoX = -Math.abs(zustand.tempoX); // jetzt nach links
   }
   if (zustand.y < oben) {
     zustand.y = oben;
+    zustand.tempoY = Math.abs(zustand.tempoY);  // jetzt nach unten
   }
   if (zustand.y > unten) {
     zustand.y = unten;
+    zustand.tempoY = -Math.abs(zustand.tempoY); // jetzt nach oben
   }
 }
 
@@ -120,9 +134,13 @@ function weicheAus(stufe) {
 
   zustand.x = zustand.x + richtungX * stufe.fluchtTempo;
   zustand.y = zustand.y + richtungY * stufe.fluchtTempo;
+
+  // Danach fliegt er in dieselbe Richtung weiter (in Stufe 1 ist tempo 0)
+  zustand.tempoX = richtungX * stufe.tempo;
+  zustand.tempoY = richtungY * stufe.tempo;
 }
 
-// Ein Bild weiter: ausweichen, falls der Cursor zu nahe ist
+// Ein Bild weiter: ausweichen, falls der Cursor zu nahe ist, sonst weiterfliegen
 function bewegeKnopf() {
   const stufe = aktuelleStufe();
   const mitte = knopfMitte();
@@ -131,6 +149,8 @@ function bewegeKnopf() {
     weicheAus(stufe);
   }
 
+  zustand.x = zustand.x + zustand.tempoX;
+  zustand.y = zustand.y + zustand.tempoY;
   halteImBild();
   zeichneKnopf();
 }
@@ -151,7 +171,22 @@ function zaehleVersuch() {
     return;
   }
   zustand.versuche = zustand.versuche + 1;
+  pruefeStufenwechsel();
   zeigeStatus();
+}
+
+// Passt die Stufe noch zur Anzahl Versuche? Sonst eine Stufe höher.
+function pruefeStufenwechsel() {
+  let neueStufe = 1;
+  for (const stufe of stufen) {
+    if (zustand.versuche >= stufe.abVersuchen) {
+      neueStufe = stufe.nummer;
+    }
+  }
+  if (neueStufe !== zustand.stufe) {
+    zustand.stufe = neueStufe;
+    wendeStufeAn();
+  }
 }
 
 // Esc: Bewegung stoppt sofort, Endmeldung erscheint
@@ -170,8 +205,6 @@ function starteNeu() {
   zustand.stufe = 1;
   zustand.versuche = 0;
   zustand.laeuft = true;
-  zustand.tempoX = 0;
-  zustand.tempoY = 0;
   wendeStufeAn();
   setzeKnopfInDieMitte();
   zeichneKnopf();
