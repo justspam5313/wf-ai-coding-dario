@@ -65,12 +65,14 @@ Spasspause am Computer mit Maus oder Trackpad machen.
 }
 
 // Objekt: Fenster · Zweck: simuliertes Programmfenster (Versteck in Stufe 4)
+// Steht als HTML in index.html, Position und Grösse in style.css.
+// script.js misst die Fenster mit getBoundingClientRect().
 {
   titel: "Notizen",
-  x: 60,               // Position in Prozent des Browserfensters
-  y: 15,
-  breite: 260,         // Grösse in Pixeln
-  hoehe: 180
+  x: 6,                // Abstand von links in Prozent des Browserfensters
+  y: 14,               // Abstand von oben in Prozent
+  breite: 240,         // Grösse in Pixeln
+  hoehe: 160
 }
 ```
 
@@ -107,6 +109,10 @@ Diese Punkte waren in der Idee nicht festgelegt. Ich habe mich (vorerst) so ents
   bereits beendetem Spiel macht nichts.
 - **Start:** Das Spiel startet direkt beim Laden der Seite.
 - **Fenstergrösse:** Der Knopf bleibt immer vollständig im sichtbaren Bereich, auch nach resize.
+  Er fliegt nie über die Statuszeile (der Bereich beginnt unterhalb der Statuszeile).
+- **Stufe 4 ist sehr schwer:** Bleibt der Cursor nahe, versteckt sich der Knopf nach dem
+  Hervorkommen sofort wieder. Das ist so gewollt («frech») – evtl. später eine kurze Pause
+  nach dem Hervorkommen einbauen?
 - **Speichern:** kein localStorage nötig – nichts muss gespeichert bleiben.
 
 ## Nicht im Umfang
