@@ -9,8 +9,12 @@
 // text:          Knopftext in dieser Stufe
 const stufen = [
   { nummer: 1, abVersuchen: 0, tempo: 0, fluchtTempo: 2, fluchtAbstand: 120, groesse: 1, text: "Klick mich" },
-  { nummer: 2, abVersuchen: 3, tempo: 3, fluchtTempo: 9, fluchtAbstand: 150, groesse: 1, text: "Zu langsam!" }
+  { nummer: 2, abVersuchen: 3, tempo: 3, fluchtTempo: 9, fluchtAbstand: 150, groesse: 1, text: "Zu langsam!" },
+  { nummer: 3, abVersuchen: 6, tempo: 3, fluchtTempo: 9, fluchtAbstand: 150, groesse: 0.6, text: "Wo bin ich?" }
 ];
+
+const normaleSchrift = 20;  // Schriftgrösse des Knopfs in Pixeln bei groesse 1
+const kleinsteSchrift = 12; // kleiner wird die Schrift nie (Text bleibt lesbar)
 
 // ===== Zustand: alles, was sich während des Spiels ändert =====
 const zustand = {
@@ -82,6 +86,9 @@ function zeigeErwischt() {
 function wendeStufeAn() {
   const stufe = aktuelleStufe();
   knopf.textContent = stufe.text;
+  // Grösse: nur die Schrift ändern – der Innenabstand (em) schrumpft automatisch mit
+  const schrift = Math.max(kleinsteSchrift, normaleSchrift * stufe.groesse);
+  knopf.style.fontSize = schrift + "px";
   starteFlug(stufe.tempo);
 }
 
