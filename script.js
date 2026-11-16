@@ -31,6 +31,9 @@ let erwischtTimer = null;
 const knopf = document.getElementById("knopf");
 const statuszeile = document.getElementById("statuszeile");
 const erwischt = document.getElementById("erwischt");
+const endmeldung = document.getElementById("endmeldung");
+const endtext = document.getElementById("endtext");
+const nochmalsKnopf = document.getElementById("nochmals");
 
 // ===== Hilfsfunktionen =====
 
@@ -151,8 +154,19 @@ function zaehleVersuch() {
   zeigeStatus();
 }
 
+// Esc: Bewegung stoppt sofort, Endmeldung erscheint
+function beendeSpiel() {
+  if (!zustand.laeuft) {
+    return; // Spiel ist schon beendet – nichts tun
+  }
+  zustand.laeuft = false;
+  endtext.textContent = "Spiel beendet – Stufe " + zustand.stufe + ", " + zustand.versuche + " Versuche";
+  endmeldung.hidden = false;
+}
+
 // Alles auf Anfang setzen
 function starteNeu() {
+  endmeldung.hidden = true;
   zustand.stufe = 1;
   zustand.versuche = 0;
   zustand.laeuft = true;
@@ -179,6 +193,21 @@ knopf.addEventListener("mousedown", function () {
   if (zustand.laeuft) {
     zeigeErwischt();
   }
+});
+
+// Taste Esc beendet das Spiel
+document.addEventListener("keydown", function (ereignis) {
+  if (ereignis.key === "Escape") {
+    beendeSpiel();
+  }
+});
+
+nochmalsKnopf.addEventListener("click", starteNeu);
+
+// Ändert sich die Fenstergrösse, bleibt der Knopf trotzdem sichtbar
+window.addEventListener("resize", function () {
+  halteImBild();
+  zeichneKnopf();
 });
 
 // Spiel startet direkt beim Laden der Seite
