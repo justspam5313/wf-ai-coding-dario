@@ -17,6 +17,7 @@ verstecken, und sie kann sich nicht ausserhalb des Browserfensters bewegen. Desh
 ## Für wen
 Besucher:innen meiner GitHub-Pages-Seite (Mitstudierende, Dozent), die eine kurze
 Spasspause am Computer mit Maus oder Trackpad machen.
+Nur am Cumputer nicht am Smartphone.
 
 ## User Stories
 - Als Spieler:in möchte ich, dass der Knopf in der Mitte steht und langsam vor meinem
@@ -87,7 +88,7 @@ Spasspause am Computer mit Maus oder Trackpad machen.
 | Welche Ausgabe entsteht? | Knopf an neuer Position mit Text der Stufe, Statuszeile «Stufe X · Versuche Y · Esc = beenden», «Erwischt!» bei Treffer, Endmeldung «Spiel beendet – Stufe X, Y Versuche». |
 
 ## Offene Fragen
-Diese Punkte waren in der Idee nicht festgelegt. Ich habe mich (vorerst) so entschieden:
+Diese Punkte waren in der Idee nicht festgelegt. Ich (Claude) habe mich (vorerst) so entschieden:
 
 - **Browser-Einschränkung:** Echte Programmfenster sind für eine Webseite unsichtbar, und der
   Knopf kann das Browserfenster nicht verlassen → «Bildschirm» = Browserfenster,

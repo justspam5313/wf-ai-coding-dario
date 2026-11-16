@@ -1,0 +1,217 @@
+Dario:
+
+C:\_Extra_für_GIT\wf-ai-coding-dario
+Sieh dir die Daten aus diesem Ordner an.
+Meine Projektidee:
+Der unklickbare Knopf: Der Button flieht vor der Maus, und mit jedem Fluchtversuch wird er frecher. Zuerst soll der Button "Klick mich" nur langsam vor dem Cursor davon huschen. Nach drei Klick-Versuchen soll der Button mit mittlerer Geschwindigkeit über den Bildschirm fliegen und wenn man ihn klicken möchte, soll er ausweichen. Nach 3 weiteren Klickversuchen soll sich der Button kleiner werden, damit es schwieriger wird ihn zu sehen (nicht zu klein). Nach 3 weiteren Klickversuchen soll sich der Button anfangen sich hinter anderen offenen Programmfenstern zu verstecken.
+Der Vorgang "unklickbarer Knopf" soll mit der Taste Esc beendet werden können.
+Nicht im Umfang: Mehrspieler, Ranglisten online, Bibliotheken.
+Erstelle mir einen umfassenden Prompt, welchen ich Claude Code (in VS Code) geben kann. Durch diesen prompt soll claude code die komplette Aufgabe gemäss den Vorgaben aus "C:\_Extra_für_GIT\wf-ai-coding-dario" selbstständig erledigen.
+Zuerst soll Claude Code, die Spec.md ausfüllen.
+
+
+
+Claude:
+
+Ich schaue mir zuerst den Ordner an und schreibe dann den Prompt für Claude Code.
+Ich habe alle Dateien gelesen (AGENTS.md, CLAUDE.md, README.md, SPEC.md, PROMPTLOG.md, die drei Code-Dateien). Bevor du den Prompt nutzt, solltest du vier Punkte kennen.
+Kritische Punkte
+Hinter Programmfenstern verstecken geht technisch nicht. Eine Webseite sieht keine anderen Fenster des Betriebssystems und kann auch nicht aus dem Browserfenster heraus. Im Prompt steht deshalb: «Bildschirm» heisst der sichtbare Bereich im Browser, und in Stufe 4 versteckt sich der Knopf hinter nachgebauten Fenstern auf der Seite.
+«Selbstständig alles erledigen» widerspricht deiner AGENTS.md. Dort steht: ein Feature pro Auftrag, bei grossen Aufträgen zuerst einen Plan machen und auf OK warten, bei Unklarem nachfragen. Der Prompt hebt das für diesen einen Auftrag ausdrücklich auf. Dafür gibt es pro Phase einen Commit, so bleibt jeder Schritt einzeln nachvollziehbar. Denk ans Erklär-Gespräch an Tag 4: Code, der in einem Durchlauf entsteht, musst du danach trotzdem selbst verstehen.
+Deine Idee lässt einige Dinge offen. Für diese habe ich im Prompt Standardwerte gesetzt. Claude Code trägt sie in SPEC.md unter «Offene Fragen» ein:
+Was zählt als Klick-Versuch?
+Was passiert, wenn man den Knopf doch trifft?
+Was kommt nach Stufe 4?
+Was zeigt die Seite nach Esc an?
+Soll es auf dem Handy (Touch) funktionieren?
+Ändere die Werte vorher, wenn du etwas anders willst.
+«Frecher werden» habe ich als wechselnden Knopftext umgesetzt. Das ist meine Auslegung, nicht deine Vorgabe.
+
+
+
+--> Prompt:
+
+# Auftrag: «Der unklickbare Knopf» – komplett umsetzen
+Du arbeitest in meinem Lernprojekt (Wahlfach «Programmieren lernen mit KI», FHNW).
+Lies zuerst vollständig: AGENTS.md, README.md, SPEC.md, index.html, style.css, script.js.
+## Ausnahme von AGENTS.md für diesen Auftrag
+AGENTS.md gilt weiterhin: nur HTML/CSS/Vanilla JavaScript, Code nur in index.html,
+style.css und script.js, keine Frameworks/Bibliotheken/CDN/npm, sprechende deutsche
+Namen, kurze deutsche Kommentare, einfacher statt cleverer Code, PROMPTLOG.md NICHT
+verändern, keine Personendaten.
+Abweichend davon gilt nur für diesen Auftrag:
+- Setze alle Phasen unten selbstständig nacheinander um, ohne auf mein OK zu warten.
+- Statt «ein Feature pro Auftrag» gilt: ein Feature pro Phase. Nach jeder Phase ein
+  eigener Git-Commit (nur lokal, NICHT pushen) mit der angegebenen Commit-Nachricht.
+- Ist etwas unklar: nicht raten, sondern die Standardentscheidung aus diesem Prompt
+  verwenden und in SPEC.md unter «Offene Fragen» festhalten. Nur wenn du wirklich
+  blockiert bist, hältst du an und fragst mich.
+## Meine Projektidee
+Der unklickbare Knopf: Der Button flieht vor der Maus, und mit jedem Fluchtversuch wird
+er frecher. Zuerst soll der Button «Klick mich» nur langsam vor dem Cursor davonhuschen.
+Nach drei Klick-Versuchen soll der Button mit mittlerer Geschwindigkeit über den
+Bildschirm fliegen und ausweichen, wenn man ihn klicken möchte. Nach drei weiteren
+Klick-Versuchen soll der Button kleiner werden, damit er schwieriger zu sehen ist (nicht
+zu klein). Nach drei weiteren Klick-Versuchen soll sich der Button hinter anderen
+offenen Programmfenstern verstecken. Mit der Taste Esc kann man den Vorgang beenden.
+Nicht im Umfang: Mehrspieler, Ranglisten online, Bibliotheken.
+## Technische Rahmenbedingung (wichtig)
+Eine Webseite kann Fenster anderer Programme weder sehen noch sich dahinter verstecken,
+und sie kann sich nicht ausserhalb des Browserfensters bewegen. Deshalb gilt:
+- «Bildschirm» = sichtbarer Bereich des Browserfensters (Viewport).
+- «Andere Programmfenster» = simulierte Fenster auf der Seite: HTML-Elemente, die wie
+  Programmfenster aussehen (Titelleiste mit Titel und drei farbigen Punkten, etwas
+  Inhalt). Der Knopf versteckt sich hinter diesen.
+Halte das in SPEC.md fest (Idee und Nicht im Umfang).
+## Standardentscheidungen
+1. Klick-Versuch: Jeder Mausklick (mousedown) auf der Seite zählt als Versuch, solange
+   das Spiel läuft – egal, ob er den Knopf trifft.
+2. Treffer: Gelingt ein Klick auf den Knopf, erscheint ca. 1 Sekunde lang «Erwischt!».
+   Der Klick zählt als Versuch, das Spiel läuft weiter.
+3. Stufen (nach Anzahl Versuchen):
+   - Stufe 1 (0–2 Versuche): Knopf steht in der Mitte. Kommt der Cursor näher als
+     ca. 120 px, huscht er langsam vom Cursor weg.
+   - Stufe 2 (3–5): Knopf fliegt ständig mit mittlerer Geschwindigkeit und prallt an
+     den Rändern ab. Kommt der Cursor näher als ca. 150 px, weicht er schnell aus.
+   - Stufe 3 (6–8): wie Stufe 2, aber der Knopf ist kleiner (ca. 60 % der
+     ursprünglichen Grösse, Schrift mindestens 12 px, Text noch lesbar).
+   - Stufe 4 (ab 9): wie Stufe 3. Zusätzlich erscheinen 3 simulierte Programmfenster
+     (z. B. «Notizen», «Rechner», «Dateien») an festen, gut verteilten Positionen.
+     Kommt der Cursor nahe, flüchtet der Knopf hinter das nächstgelegene Fenster, das
+     nicht unter dem Cursor liegt (Knopf liegt dann unter dem Fenster, tieferer
+     z-index). Nach ca. 1–2 Sekunden schaut er wieder hervor und fliegt weiter.
+   - Es gibt keine Stufe 5. Stufe 4 läuft, bis Esc gedrückt wird.
+   - Alle Zahlen (Geschwindigkeit, Fluchtabstand, Grösse, Knopftext) stehen pro Stufe
+     in einem gut lesbaren Array `stufen` oben in script.js, damit ich sie selbst
+     anpassen kann.
+4. Frecher werden: Pro Stufe wechselt der Knopftext, z. B. «Klick mich» →
+   «Zu langsam!» → «Wo bin ich?» → «Versteckis!». Keine weiteren Effekte.
+5. Statuszeile oben, schlicht: «Stufe X · Versuche Y · Esc = beenden».
+6. Esc: Die Bewegung stoppt sofort. Eine Meldung zeigt «Spiel beendet – Stufe X,
+   Y Versuche» und einen Knopf «Nochmals spielen», der alles auf Anfang setzt.
+   Esc bei bereits beendetem Spiel: nichts passiert.
+7. Das Spiel startet direkt beim Laden der Seite.
+8. Der Knopf bleibt immer vollständig im sichtbaren Bereich, auch wenn das
+   Browserfenster verkleinert wird (resize).
+9. Nur Maus/Trackpad am Computer. Touch-Bedienung ist nicht im Umfang.
+10. Kein localStorage nötig – es muss nichts gespeichert bleiben.
+## Phasen
+### Phase 1 – SPEC.md ausfüllen (noch KEIN Code)
+Ersetze alle kursiven Platzhalter. Den Beispiel-Block «Giess-Planer» am Ende entfernen.
+- Projektname: Der unklickbare Knopf
+- Idee: ein Satz.
+- Für wen: kurz und realistisch (z. B. Besucher:innen meiner GitHub-Pages-Seite,
+  kurze Spasspause).
+- User Stories: mindestens 6 im Format «Als … möchte ich …, damit …» – je eine für
+  Stufe 1, 2, 3, 4, für Esc/Beenden und für Neustart, dazu die Statuszeile.
+- Datenmodell: im Stil der Vorlage, mit Kommentar pro Objekt:
+  Spielzustand (z. B. stufe, versuche, laeuft, x, y, tempoX, tempoY, versteckt),
+  Stufe (z. B. nummer, abVersuchen, tempo, fluchtAbstand, groesse, text),
+  Fenster (z. B. titel, x, y, breite, hoehe).
+- Datenkarte: alle 6 Zeilen ausfüllen.
+- Offene Fragen: alle Standardentscheidungen aus diesem Prompt, die nicht wörtlich
+  aus meiner Idee stammen, plus die Browser-Einschränkung.
+- Nicht im Umfang: Mehrspieler, Online-Ranglisten, Bibliotheken/Frameworks, echte
+  Betriebssystem-Fenster, Touch-Bedienung.
+Commit: «SPEC.md ausgefüllt»
+### Phase 2 – Grundgerüst und Stufe 1
+- index.html: Starterinhalt ersetzen (Titel «Der unklickbare Knopf»), Statuszeile,
+  Spielfläche, Knopf (id="knopf" behalten), versteckte Endmeldung mit
+  «Nochmals spielen».
+- style.css: Spielfläche füllt das Browserfenster, Knopf frei positionierbar, Text
+  nicht markierbar (user-select: none). Gelbe Knopffarbe aus dem Starter beibehalten.
+- script.js: Zustand, Array `stufen`, Mausposition merken (mousemove), Abstand
+  Cursor–Knopf berechnen, langsames Ausweichen, Versuche zählen (mousedown),
+  Statuszeile aktualisieren, Bewegungsschleife mit requestAnimationFrame.
+Commit: «Stufe 1: Knopf huscht langsam weg»
+### Phase 3 – Esc, Endmeldung, Neustart
+(Bewusst früh, damit man jede spätere Stufe beenden kann.)
+Commit: «Esc beendet das Spiel, Neustart möglich»
+### Phase 4 – Stufe 2: Knopf fliegt und weicht aus
+Commit: «Stufe 2: Knopf fliegt mit mittlerer Geschwindigkeit»
+### Phase 5 – Stufe 3: Knopf wird kleiner
+Commit: «Stufe 3: Knopf wird kleiner»
+### Phase 6 – Stufe 4: Verstecken hinter simulierten Fenstern
+Fenster erst in Stufe 4 einblenden. Beim Neustart wieder ausblenden.
+Commit: «Stufe 4: Knopf versteckt sich hinter Fenstern»
+### Phase 7 – Prüfen und aufräumen
+- Falls Node installiert ist: `node --check script.js` ausführen.
+- Jede User Story aus SPEC.md gegen den Code prüfen (als Tabelle im Abschlussbericht:
+  Story – erfüllt ja/nein – wo im Code).
+- Prüfen: keine externen Links/CDN, kein Code ausserhalb der drei Dateien,
+  PROMPTLOG.md unverändert (git diff), keine ungenutzten Variablen/Funktionen.
+- SPEC.md nachführen, falls sich bei der Umsetzung etwas geändert hat.
+Commit (nur falls Änderungen): «Aufgeräumt und geprüft»
+## Code-Stil
+- Kleine Funktionen mit je einer Aufgabe, sprechend benannt, z. B. `bewegeKnopf`,
+  `weicheAus`, `zaehleVersuch`, `pruefeStufenwechsel`, `versteckeHinterFenster`,
+  `beendeSpiel`, `starteNeu`.
+- `const`/`let`, normale Funktionen. Keine Klassen, keine Module, keine Tricks.
+- So kurz wie möglich, ohne clever zu werden (Richtwert: script.js unter ca. 250 Zeilen).
+## Abschlussbericht (Deutsch, einfach)
+1. Pro Phase in 2–3 Sätzen: was geändert wurde, dazu die Commit-Liste.
+2. Die 3 wichtigsten Konzepte im Code so erklärt, dass ich sie im Erklär-Gespräch an
+   Tag 4 selbst erklären kann (z. B. requestAnimationFrame-Schleife, Abstand mit
+   Pythagoras, z-index beim Verstecken).
+3. Pro Stufe 1–2 Dinge, die ich selbst im Browser testen soll (Live Preview).
+4. Wo in script.js ich Geschwindigkeit, Grösse und Texte anpassen kann.
+5. Was offen ist oder anders umgesetzt wurde als vorgegeben.
+Erinnere mich am Schluss daran, dass ich PROMPTLOG.md selbst nachführe.
+
+
+
+Dario:
+
+Obigen Prompt in Claude Code (innerhalb VS Code) prompten.
+
+
+
+Claude Code (in VS Code):
+
+Abschlussbericht: Der unklickbare Knopf
+Das Spiel ist fertig und läuft. Die 7 Commits liegen nur lokal, ich habe nichts gepusht. Deine Prompt-Dokumentation.txt habe ich nicht angefasst und nicht committet.
+Ich habe es so geprüft:
+node --check meldet keinen Syntaxfehler.
+In einem unsichtbaren Edge-Browser habe ich die Klicks und die Maus nachgestellt. Stufe 1→2→3→4, das Verstecken (z-index 1), das Hervorkommen nach 1,5 s, Esc und der Neustart funktionieren.
+Ein Bildschirmfoto von Stufe 4 sieht korrekt aus.
+1. Phasen und Commits
+Phase	Was geändert wurde	Commit
+1	Ich habe SPEC.md ausgefüllt: Idee mit Browser-Einschränkung, 8 User Stories, Datenmodell, Datenkarte, offene Fragen und «Nicht im Umfang». Das Beispiel «Giess-Planer» ist entfernt.	ae578e4 SPEC.md ausgefüllt
+2	Die Seite hat jetzt eine Statuszeile, eine Spielfläche, den Knopf und «Erwischt!». script.js hat das Array stufen, den Zustand, die Mausposition, den Abstand mit Pythagoras, das langsame Ausweichen, das Zählen der Versuche und die Bewegungsschleife.	614a2cb Stufe 1: Knopf huscht langsam weg
+3	Esc stoppt das Spiel und zeigt die Endmeldung. «Nochmals spielen» setzt alles zurück. Hier habe ich auch den resize-Schutz eingebaut.	107a6b8 Esc beendet das Spiel, Neustart möglich
+4	Der Knopf fliegt los, prallt an den Rändern ab und weicht schnell aus. pruefeStufenwechsel wechselt die Stufe nach der Anzahl Versuche.	d13fbe1 Stufe 2: …
+5	Die Schrift wird auf 60 % verkleinert, aber nie unter 12 px. Der Innenabstand schrumpft mit, weil er in em angegeben ist.	5fe34f1 Stufe 3: …
+6	Es gibt drei simulierte Fenster: Notizen, Rechner und Dateien. Der Knopf gleitet unter das nächste Fenster, das nicht unter dem Cursor liegt, und kommt nach 1,5 s wieder hervor.	2c707f9 Stufe 4: …
+7	Ich habe alles geprüft. In SPEC.md habe ich das Fenster-Datenmodell angepasst und zwei Punkte unter «Offene Fragen» ergänzt.	b0f77c8 Aufgeräumt und geprüft
+Prüfung der User Stories
+Story	erfüllt	wo im Code
+Stufe 1: langsam weghuschen	ja	script.js:144 weicheAus, Werte in script.js:12
+Stufe 2: fliegen, abprallen, ausweichen	ja	script.js:112 starteFlug, script.js:120 halteImBild
+Stufe 3: kleiner, lesbar	ja	script.js:98 in wendeStufeAn
+Stufe 4: verstecken hinter Fenstern	ja	script.js:166 versteckeHinterFenster, script.js:198 kommeHervor
+Esc beendet, Meldung	ja	script.js:257 beendeSpiel
+Nochmals spielen	ja	script.js:268 starteNeu
+Statuszeile	ja	script.js:80 zeigeStatus
+«Erwischt!» bei Treffer	ja	script.js:85 zeigeErwischt
+Weitere Prüfungen: Es gibt keine externen Links und kein CDN. Der ganze Code steht in den drei Dateien. git diff zeigt, dass PROMPTLOG.md unverändert ist. Jede Variable und jede Funktion wird auch benutzt.
+2. Die 3 wichtigsten Konzepte zum Erklären
+Die Schleife mit requestAnimationFrame (script.js:223). spielSchleife ruft sich über requestAnimationFrame immer wieder selbst auf, etwa 60-mal pro Sekunde. Bei jedem Durchgang wird ein Bild weitergerechnet: Position ändern, Rand prüfen, Knopf neu zeichnen. «Tempo 3» heisst also 3 Pixel pro Bild. Wenn das Spiel beendet oder der Knopf versteckt ist, überspringt die Schleife die Bewegung.
+Abstand mit Pythagoras (script.js:59). Der waagrechte Unterschied a und der senkrechte Unterschied b bilden ein rechtwinkliges Dreieck. Der direkte Abstand ist dann √(a² + b²). Ist dieser Abstand kleiner als fluchtAbstand, weicht der Knopf aus. Für die Fluchtrichtung teilt weicheAus den Unterschied durch den Abstand. So bekommt man eine Richtung mit der Länge 1, die man mit dem Tempo malnehmen kann.
+z-index beim Verstecken (style.css, #knopf.versteckt). Normal hat der Knopf z-index 3 und liegt vor den Fenstern, die z-index 2 haben. Zum Verstecken hängt script.js die Klasse versteckt an den Knopf. Dann hat er z-index 1 und liegt unter dem Fenster. Er ist noch da, aber man sieht ihn nicht und kann ihn nicht anklicken.
+3. Selbst testen (Live Preview)
+Stufe 1: Fahre langsam mit der Maus zum Knopf. Er sollte gemächlich wegrutschen. Treibst du ihn in eine Ecke, kannst du ihn anklicken, dann erscheint «Erwischt!».
+Stufe 2: Klicke 3-mal irgendwo hin. Der Knopf heisst jetzt «Zu langsam!», fliegt herum und prallt an den Rändern ab. Er fliegt nie über die Statuszeile.
+Stufe 3: Nach 6 Klicks ist der Knopf kleiner, aber der Text «Wo bin ich?» bleibt lesbar.
+Stufe 4: Nach 9 Klicks erscheinen die drei Fenster. Wenn du dich näherst, gleitet der Knopf unter ein Fenster und kommt nach etwa 1,5 s wieder hervor. Verkleinere auch einmal das Browserfenster: Der Knopf muss sichtbar bleiben.
+Esc: Drücke Esc in irgendeiner Stufe. Die Meldung zeigt die richtige Stufe und Zahl. Ein zweites Esc bewirkt nichts. «Nochmals spielen» startet wieder bei Stufe 1, und die Fenster sind weg.
+4. Wo du Werte anpassen kannst
+Array stufen (script.js:11-16): pro Stufe tempo, fluchtTempo, fluchtAbstand, groesse, text und abVersuchen.
+versteckDauer (script.js:18): wie lange sich der Knopf versteckt, in Millisekunden.
+normaleSchrift und kleinsteSchrift (script.js:20-21): die normale und die kleinste Schriftgrösse des Knopfs.
+Fensterpositionen: stehen in style.css bei #fenster-notizen usw.
+5. Offen oder anders als vorgegeben
+script.js hat 316 Zeilen statt etwa 250. Davon sind rund 110 Kommentare und Leerzeilen, echter Code sind etwa 205 Zeilen. Ich habe nicht weiter gekürzt, weil der Code sonst schwerer zu lesen wäre.
+Stufe 4 ist praktisch nicht zu gewinnen. Bleibt der Cursor in der Nähe, versteckt sich der Knopf nach dem Hervorkommen sofort wieder. Das passt zur Vorgabe. Ich habe es aber in SPEC.md unter «Offene Fragen» notiert, mit der Idee, später eine kurze Pause nach dem Hervorkommen einzubauen.
+Die Fenster stehen fest in index.html und werden nicht aus einem JavaScript-Array erzeugt. So ist es einfacher. Das Datenmodell in SPEC.md beschreibt das.
+Der Knopf bleibt unterhalb der Statuszeile. Das war nicht vorgegeben, aber sonst wäre er dort teilweise verdeckt.
+Denk bitte daran, PROMPTLOG.md selbst nachzuführen. Ich habe die Datei nicht verändert.
