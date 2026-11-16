@@ -15,6 +15,39 @@
   <main id="spielflaeche">
     <button id="knopf">Klick mich</button>
     <p id="erwischt" hidden>Erwischt!</p>
+
+    <!-- Simulierte Programmfenster: erst ab Stufe 4 sichtbar -->
+    <div id="fensterBereich" hidden>
+      <div class="fenster" id="fenster-notizen">
+        <div class="titelleiste">
+          <span class="punkt rot"></span>
+          <span class="punkt gelb"></span>
+          <span class="punkt gruen"></span>
+          <span class="fenstertitel">Notizen</span>
+        </div>
+        <p class="fensterinhalt">Einkaufen: Brot, Äpfel, Käse<br>Nicht vergessen: Pflanzen giessen</p>
+      </div>
+
+      <div class="fenster" id="fenster-rechner">
+        <div class="titelleiste">
+          <span class="punkt rot"></span>
+          <span class="punkt gelb"></span>
+          <span class="punkt gruen"></span>
+          <span class="fenstertitel">Rechner</span>
+        </div>
+        <p class="fensterinhalt">123 + 456<br><strong>= 579</strong></p>
+      </div>
+
+      <div class="fenster" id="fenster-dateien">
+        <div class="titelleiste">
+          <span class="punkt rot"></span>
+          <span class="punkt gelb"></span>
+          <span class="punkt gruen"></span>
+          <span class="fenstertitel">Dateien</span>
+        </div>
+        <p class="fensterinhalt">Bilder/<br>Musik/<br>projekt.txt</p>
+      </div>
+    </div>
   </main>
 
   <!-- Endmeldung: erst sichtbar, wenn Esc gedrückt wurde -->

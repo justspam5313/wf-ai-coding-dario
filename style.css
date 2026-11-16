@@ -44,7 +44,81 @@ button:hover {
   font-size: 20px;      /* script.js ändert das in Stufe 3 */
   padding: 0.5em 1em;   /* em = wächst und schrumpft mit der Schrift */
   white-space: nowrap;  /* Text bleibt auf einer Zeile */
-  z-index: 3;
+  z-index: 3;           /* normal: vor den Fenstern */
+}
+
+/* Versteckt: tieferer z-index als die Fenster (2) – der Knopf liegt darunter.
+   transition: der Sprung hinter das Fenster wird zu einer kurzen Gleitbewegung. */
+#knopf.versteckt {
+  z-index: 1;
+  transition: left 0.3s, top 0.3s;
+}
+
+/* ===== Simulierte Programmfenster (Stufe 4) ===== */
+.fenster {
+  position: absolute;
+  width: 240px;
+  height: 160px;
+  background-color: white;
+  border: 1px solid #bbb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  z-index: 2;
+}
+
+/* Feste, gut verteilte Positionen */
+#fenster-notizen {
+  left: 6%;
+  top: 14%;
+}
+
+#fenster-rechner {
+  right: 6%;
+  top: 22%;
+}
+
+#fenster-dateien {
+  left: 38%;
+  bottom: 8%;
+}
+
+.titelleiste {
+  padding: 6px 10px;
+  background-color: #e8e8e8;
+  border-bottom: 1px solid #ccc;
+}
+
+/* Die drei farbigen Punkte */
+.punkt {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.rot {
+  background-color: #ff5f57;
+}
+
+.gelb {
+  background-color: #febc2e;
+}
+
+.gruen {
+  background-color: #28c840;
+}
+
+.fenstertitel {
+  margin-left: 8px;
+  font-size: 14px;
+}
+
+.fensterinhalt {
+  margin: 0;
+  padding: 12px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 /* «Erwischt!» in grosser Schrift in der Mitte */

@@ -7,11 +7,15 @@
 // fluchtAbstand: ist der Cursor näher als so viele Pixel, weicht der Knopf aus
 // groesse:       1 = normale Grösse, 0.6 = 60 %
 // text:          Knopftext in dieser Stufe
+// verstecken:    true = der Knopf flüchtet hinter die simulierten Fenster
 const stufen = [
-  { nummer: 1, abVersuchen: 0, tempo: 0, fluchtTempo: 2, fluchtAbstand: 120, groesse: 1, text: "Klick mich" },
-  { nummer: 2, abVersuchen: 3, tempo: 3, fluchtTempo: 9, fluchtAbstand: 150, groesse: 1, text: "Zu langsam!" },
-  { nummer: 3, abVersuchen: 6, tempo: 3, fluchtTempo: 9, fluchtAbstand: 150, groesse: 0.6, text: "Wo bin ich?" }
+  { nummer: 1, abVersuchen: 0, tempo: 0, fluchtTempo: 2, fluchtAbstand: 120, groesse: 1,   text: "Klick mich",  verstecken: false },
+  { nummer: 2, abVersuchen: 3, tempo: 3, fluchtTempo: 9, fluchtAbstand: 150, groesse: 1,   text: "Zu langsam!", verstecken: false },
+  { nummer: 3, abVersuchen: 6, tempo: 3, fluchtTempo: 9, fluchtAbstand: 150, groesse: 0.6, text: "Wo bin ich?", verstecken: false },
+  { nummer: 4, abVersuchen: 9, tempo: 3, fluchtTempo: 9, fluchtAbstand: 150, groesse: 0.6, text: "Versteckis!", verstecken: true }
 ];
+
+const versteckDauer = 1500; // so lange (Millisekunden) bleibt der Knopf hinter einem Fenster
 
 const normaleSchrift = 20;  // Schriftgrösse des Knopfs in Pixeln bei groesse 1
 const kleinsteSchrift = 12; // kleiner wird die Schrift nie (Text bleibt lesbar)
@@ -24,13 +28,15 @@ const zustand = {
   x: 0,       // Position des Knopfs (linke obere Ecke)
   y: 0,
   tempoX: 0,  // Bewegung pro Bild nach rechts (+) oder links (-)
-  tempoY: 0   // Bewegung pro Bild nach unten (+) oder oben (-)
+  tempoY: 0,  // Bewegung pro Bild nach unten (+) oder oben (-)
+  versteckt: false
 };
 
 // Mausposition – am Anfang weit weg, damit der Knopf ruhig bleibt
 const maus = { x: -1000, y: -1000 };
 
 let erwischtTimer = null;
+let versteckTimer = null;
 
 // ===== Elemente aus index.html holen =====
 const knopf = document.getElementById("knopf");
@@ -39,6 +45,8 @@ const erwischt = document.getElementById("erwischt");
 const endmeldung = document.getElementById("endmeldung");
 const endtext = document.getElementById("endtext");
 const nochmalsKnopf = document.getElementById("nochmals");
+const fensterBereich = document.getElementById("fensterBereich");
+const alleFenster = document.querySelectorAll(".fenster");
 
 // ===== Hilfsfunktionen =====
 
@@ -90,6 +98,7 @@ function wendeStufeAn() {
   const schrift = Math.max(kleinsteSchrift, normaleSchrift * stufe.groesse);
   knopf.style.fontSize = schrift + "px";
   starteFlug(stufe.tempo);
+  fensterBereich.hidden = !stufe.verstecken; // Fenster nur in Stufe 4 zeigen
 }
 
 // ===== Bewegung =====
@@ -147,12 +156,60 @@ function weicheAus(stufe) {
   zustand.tempoY = richtungY * stufe.tempo;
 }
 
-// Ein Bild weiter: ausweichen, falls der Cursor zu nahe ist, sonst weiterfliegen
+// Liegt der Punkt (x, y) innerhalb des Rahmens?
+function liegtInRahmen(x, y, rahmen) {
+  return x >= rahmen.left && x <= rahmen.right && y >= rahmen.top && y <= rahmen.bottom;
+}
+
+// Knopf flüchtet hinter das nächste Fenster, das nicht unter dem Cursor liegt.
+// Gibt true zurück, wenn das geklappt hat.
+function versteckeHinterFenster() {
+  const mitte = knopfMitte();
+  let bestesVersteck = null;
+  let kleinsterAbstand = Infinity;
+
+  for (const fenster of alleFenster) {
+    const rahmen = fenster.getBoundingClientRect();
+    const fensterMitteX = rahmen.left + rahmen.width / 2;
+    const fensterMitteY = rahmen.top + rahmen.height / 2;
+    const abstand = berechneAbstand(mitte.x, mitte.y, fensterMitteX, fensterMitteY);
+
+    if (!liegtInRahmen(maus.x, maus.y, rahmen) && abstand < kleinsterAbstand) {
+      kleinsterAbstand = abstand;
+      bestesVersteck = { x: fensterMitteX, y: fensterMitteY };
+    }
+  }
+
+  if (bestesVersteck === null) {
+    return false; // kein freies Fenster gefunden
+  }
+
+  // Knopf unter das Fenster legen (tieferer z-index, siehe style.css)
+  knopf.classList.add("versteckt");
+  zustand.versteckt = true;
+  zustand.x = bestesVersteck.x - knopf.offsetWidth / 2;
+  zustand.y = bestesVersteck.y - knopf.offsetHeight / 2;
+  zeichneKnopf();
+  versteckTimer = setTimeout(kommeHervor, versteckDauer);
+  return true;
+}
+
+// Nach der Versteckdauer: Knopf schaut wieder hervor und fliegt weiter
+function kommeHervor() {
+  zustand.versteckt = false;
+  knopf.classList.remove("versteckt");
+  starteFlug(aktuelleStufe().tempo);
+}
+
+// Ein Bild weiter: ausweichen (oder verstecken), falls der Cursor zu nahe ist, sonst weiterfliegen
 function bewegeKnopf() {
   const stufe = aktuelleStufe();
   const mitte = knopfMitte();
 
   if (berechneAbstand(maus.x, maus.y, mitte.x, mitte.y) < stufe.fluchtAbstand) {
+    if (stufe.verstecken && versteckeHinterFenster()) {
+      return; // Knopf ist jetzt versteckt – in diesem Bild nichts mehr bewegen
+    }
     weicheAus(stufe);
   }
 
@@ -164,7 +221,7 @@ function bewegeKnopf() {
 
 // Die Bewegungsschleife: läuft ca. 60-mal pro Sekunde
 function spielSchleife() {
-  if (zustand.laeuft) {
+  if (zustand.laeuft && !zustand.versteckt) {
     bewegeKnopf();
   }
   requestAnimationFrame(spielSchleife);
@@ -202,6 +259,7 @@ function beendeSpiel() {
     return; // Spiel ist schon beendet – nichts tun
   }
   zustand.laeuft = false;
+  clearTimeout(versteckTimer); // ein versteckter Knopf kommt nicht mehr hervor
   endtext.textContent = "Spiel beendet – Stufe " + zustand.stufe + ", " + zustand.versuche + " Versuche";
   endmeldung.hidden = false;
 }
@@ -209,6 +267,9 @@ function beendeSpiel() {
 // Alles auf Anfang setzen
 function starteNeu() {
   endmeldung.hidden = true;
+  clearTimeout(versteckTimer);
+  zustand.versteckt = false;
+  knopf.classList.remove("versteckt");
   zustand.stufe = 1;
   zustand.versuche = 0;
   zustand.laeuft = true;
